@@ -18,10 +18,10 @@ describe SSDB do
 
     it "should delete" do
       -> {
-        subject.del("#{FPX}:key1").should be_nil
+        subject.del("#{FPX}:key1").should be_true
       }.should change { subject.exists?("#{FPX}:key1") }.to(false)
 
-      subject.del("#{FPX}:keyX").should be_nil
+      subject.del("#{FPX}:keyX").should be_true
     end
 
     it "should list" do
@@ -83,7 +83,7 @@ describe SSDB do
     end
 
     it 'should multi-get/set' do
-      subject.multi_set("#{FPX}:key4" => "x", "#{FPX}:key8" => "y", "#{FPX}:key9" => "z").should == 6
+      subject.multi_set("#{FPX}:key4" => "x", "#{FPX}:key8" => "y", "#{FPX}:key9" => "z").should == 3
       subject.multi_get(["#{FPX}:key4", "#{FPX}:key6", "#{FPX}:key9", "#{FPX}:key8"]).
         should == ["x", nil, "z", "y"]
     end
@@ -101,7 +101,7 @@ describe SSDB do
     it 'should multi-delete' do
       keys = ["#{FPX}:key2", "#{FPX}:key3", "#{FPX}:key9"]
       -> {
-        subject.multi_del(keys).should == 0
+        subject.multi_del(keys).should == 3
       }.should change {
         subject.multi_exists(keys)
       }.from([true, true, false]).to([false, false, false])

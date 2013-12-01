@@ -15,9 +15,10 @@ describe SSDB do
     end
 
     it "should check existence" do
-      subject.zexists?("#{FPX}:zset1").should be(true)
-      subject.zexists("#{FPX}:zset2").should be(true)
-      subject.zexists?("#{FPX}:zset9").should be(false)
+      subject.zexists?("#{FPX}:zset1", "a").should be(true)
+      subject.zexists("#{FPX}:zset2", "xa").should be(true)
+      subject.zexists("#{FPX}:zset2", "x@").should be(false)
+      subject.zexists?("#{FPX}:zset9", "xxx").should be(false)
     end
 
     it "should count" do
@@ -92,7 +93,7 @@ describe SSDB do
     end
 
     it "should check existence of multiple sets" do
-      subject.multi_zexists(["#{FPX}:zset1", "#{FPX}:zset2", "#{FPX}:zset9"]).should == [true, true, false]
+      subject.multi_zexists("#{FPX}:zset1", ["a", "x"]).should == [true, false]
     end
 
     it "should check sizes of multiple sets" do

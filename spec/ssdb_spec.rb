@@ -46,45 +46,4 @@ describe SSDB do
 
     res["leveldb.stats"].should be_instance_of(Hash)
   end
-
-  describe "scripting" do
-
-    it 'should eval' do
-      subject.eval("return 'hello'").should == "hello"
-      subject.eval("return table.concat(args)", 1, "a", 2, "b").should == "1a2b"
-      subject.eval("local x = 10 * math.pi; return x").should == "31.415927"
-      subject.eval("return 2 ^ 3 == 8").should == "1"
-      subject.eval("local no_return").should be_nil
-      subject.eval("return {1, 'a', 2, 'b', ['c'] = 3, false, function() end, { x = 5 }, 'd'}").should == ["1", "a", "2", "b", "0", "d"]
-      subject.eval("return 1, 2").should == "1"
-    end
-
-    it 'should raise on eval failures' do
-      -> { subject.eval "wrong syntax" }.should raise_error(SSDB::CommandError, /failed compiling/)
-    end
-
-    it 'should expose ssdb instance' do
-      subject.eval("return type(ssdb)").should == "userdata"
-      subject.eval("return type(getmetatable(ssdb))").should == "table"
-      subject.eval("return type(ssdb)").should == "userdata"
-      subject.eval("return type(getmetatable(ssdb))").should == "table"
-    end
-
-    it 'should expose ssdb methods' do
-      subject.set("key", "v1")
-      subject.eval("return ssdb:get('key')").should == "v1"
-      subject.eval("return ssdb:get('missing')").should be_nil
-
-      -> { subject.eval "return ssdb:no_method()" }.should raise_error(SSDB::CommandError, /failed running/)
-    end
-
-    it 'should increment' do
-      subject.eval(%(
-        local res = { ssdb:incr('key') }
-        for i=2,5 do res[i] = ssdb:incr('key', i) end
-        return res
-      )).should == ["1", "3", "6", "10", "15"]
-    end
-
-  end
 end

@@ -156,10 +156,10 @@ class SSDB
   # @param [String] key the key
   #
   # @example
-  #   ssdb.del("foo") # => nil
+  #   ssdb.del("foo") # => true
   def del(key)
     mon_synchronize do
-      perform ["del", key]
+      perform ["del", key], proc: T_BOOL
     end
   end
 
@@ -374,9 +374,9 @@ class SSDB
   # @example
   #   ssdb.zexists("visits")
   #   # => true
-  def zexists(key)
+  def zexists(key, member)
     mon_synchronize do
-      perform ["zexists", key], proc: T_BOOL
+      perform ["zexists", key, member], proc: T_BOOL
     end
   end
   alias_method :zexists?, :zexists
@@ -488,16 +488,16 @@ class SSDB
 
   # Checks existence of multiple sets
   #
-  # @param [Array<String>] keys
+  # @param [String] key the zset
+  # @param [Array<String>] members
   # @return [Array<Boolean>] results
   #
   # @example
   #   ssdb.multi_zexists("visits", "page_views", "baz")
   #   # => [true, true, false]
-  def multi_zexists(keys)
-    keys = Array(keys) unless keys.is_a?(Array)
+  def multi_zexists(key, members)
     mon_synchronize do
-      perform ["multi_zexists", *keys], multi: true, proc: T_VBOOL
+      perform ["multi_zexists", key, *members], multi: true, proc: T_VBOOL
     end
   end
   alias_method :multi_zexists?, :multi_zexists
